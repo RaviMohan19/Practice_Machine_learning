@@ -2,7 +2,11 @@
 title: "Prediction Assignment Writeup"
 author: "Ravi M.B"
 date: "June 10, 2018"
-output: html_document
+output: 
+  html_document: 
+    fig_caption: yes
+    keep_md: yes
+    toc: yes
 ---
 # Project Background
 
@@ -64,9 +68,9 @@ testing_data <- seedData2[-training_data1,]
 qplot(classe, fill = "4", data=training_data2, main="Distribution of Classe Variable")
 ```
 
-### Predictors and the building model for the predictors
+### Predictors and the building model for the predictors Out of sample error
 
-using the names function,the predictors could be listed for the data analysis created and mentioned above, as a part of the *CoursEra* week 3 teachings, I have used the techniques taught during week3  * model based predictions * ,  *predicting with trees* and *Random forest *
+using the names function,the predictors could be listed for the data analysis created and mentioned above, the *error rate* you get on a new data set it is also referred as *generalization error* , as a part of the *CoursEra* week 3 teachings, I have used the techniques taught during week3  * model based predictions * ,  *predicting with trees* and *Random forest* to build the prediction model.
 
 ```{r Predictors, echo=TRUE}
 names(training_data2[,-53])
@@ -84,11 +88,18 @@ confusionMatrix(prediction1, testing_data$classe)
 ```
 Finally comparing *tree based* and *Random Forest* models, it came to the observation that *Random Forest* model is more accurate.
 
+### Out of Sample Error 
+
+As mentioned during the course,the *out of sample error* is the "* error rate you get on new data set*", in this study the *out of sample error* is the error rate that is observed after executing the *predict() function* on the *model_tree* and *forest_model* variables using the partitioned *training data* and the *Cross Validation Testing data : Validation*  
+
+
 # Summary and Conclusion
 
 A prediction model was created using the *Random Forest* and *Tree Based* principles for the data analysis, in this study for plausible prediction the characteristic s of both *Training Data* and *Testing Data* were considerable reduced.
 
 The characteristics that were reduced are the  *Percentage of NA values*, *low variation* , *correlation * and etc., the *training data* was further partiotioned in to * subtraining * and *Validation* to implement a  predictive model for accuracy. 
+
+
 
 *Decision Tree Based* and *Random Forest* pricinples were applied and it was observed that the model with *Random Forest* principled model provided better accuracy than *Tree Based* model
 
