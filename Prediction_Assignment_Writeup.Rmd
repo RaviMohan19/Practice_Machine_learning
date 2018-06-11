@@ -1,0 +1,98 @@
+---
+title: "Prediction Assignment Writeup"
+author: "Ravi M.B"
+date: "June 10, 2018"
+output: html_document
+---
+# Project Background
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively, these devices are a part of quantified self-movement which consists of group of enthusiasts who take measurements about themselves regularly to improve their health. Usually people tend to quantify how much of an activity they do instead of quantifying how well or good they perform the activity. 
+
+# Project Goal
+
+In this project the goal is to use the data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways.
+
+The training data [Training](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv) for this projecte is extracted from * CoursEra * instructions page, similarly test data [Test](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv) was extracted from the same page.
+
+The entire data for the project comes from the [Source]( http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har). It is cited here for future references and reproducibility.
+
+# Analysis of the Data
+
+This section covers the analysis of both the training data and testing data.
+
+## Relevant libraries invoked
+At first, loaded the necessary package libraries for analysis, then the data is downloaded in to the working directory
+```{r Data Load, echo=TRUE}
+library(caret)
+library(rpart)
+library(randomForest)
+library(e1071)
+library(gbm)
+library(ggplot2)
+library(rpart.plot)
+setwd("~/R/Practice_Machine_Learning/Project")
+```
+
+## Loading the data 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+training_url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testing_url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+training <- read.csv(url(training_url), na.strings = c("NA", "", "#DIV/0!"))
+testing <- read.csv(url(testing_url), na.strings = c("NA","","#DIV/0!"))
+Columns <- colnames(training) == colnames(testing)
+colnames(training)[Columns==FALSE]
+```
+
+## Data partioning and cleaning for prediction
+Now post loading the data, as per instructions listed on [CoursEra](https://www.coursera.org/learn/practical-machine-learning/peer/R43St/prediction-assignment-writeup), I will be using the "*classe*" variable in the training set to predict the manner in which the exercise activity is performed, so the *training data* is split further in to two partitions and use the *testing data * for validation, also the seven variables irrlevant for the analysis and the prediction were excluded. 
+
+```{r Data Partitioning, echo=TRUE}
+set.seed(123) 
+training<-training[,colSums(is.na(training)) == 0]
+testing <-testing[,colSums(is.na(testing)) == 0]
+head(colnames(training))
+training <- training[,8:dim(training)[2]]
+testing <- testing[,8:dim(testing)[2]]
+seedData1 <- createDataPartition(y = training$classe, p = 0.8, list = F)
+seedData2 <- training[seedData1,]
+validation_data <- training[-seedData1,]
+training_data1 <- createDataPartition(y = seedData2$classe, p = 0.75, list = F)
+training_data2 <-seedData2[training_data1,]
+testing_data <- seedData2[-training_data1,]
+qplot(classe, fill = "4", data=training_data2, main="Distribution of Classe Variable")
+```
+
+### Predictors and the building model for the predictors
+
+using the names function,the predictors could be listed for the data analysis created and mentioned above, as a part of the *CoursEra* week 3 teachings, I have used the techniques taught during week3  * model based predictions * ,  *predicting with trees* and *Random forest *
+
+```{r Predictors, echo=TRUE}
+names(training_data2[,-53])
+model_tree <- rpart(classe ~ ., data=training_data2, method="class")
+prediction_tree <- predict(model_tree, testing_data, type="class")
+class_tree <- confusionMatrix(prediction_tree, testing_data$classe)
+rpart.plot(model_tree)
+forest_model <- randomForest(classe ~ ., data=training_data2, method="class")
+prediction_forest <- predict(forest_model, testing_data, type="class")
+random_forest <- confusionMatrix(prediction_forest, testing_data$classe)
+class_tree
+random_forest
+prediction1 <- predict(forest_model, newdata=testing_data)
+confusionMatrix(prediction1, testing_data$classe)
+```
+Finally comparing *tree based* and *Random Forest* models, it came to the observation that *Random Forest* model is more accurate.
+
+# Summary and Conclusion
+
+A prediction model was created using the *Random Forest* and *Tree Based* principles for the data analysis, in this study for plausible prediction the characteristic s of both *Training Data* and *Testing Data* were considerable reduced.
+
+The characteristics that were reduced are the  *Percentage of NA values*, *low variation* , *correlation * and etc., the *training data* was further partiotioned in to * subtraining * and *Validation* to implement a  predictive model for accuracy. 
+
+*Decision Tree Based* and *Random Forest* pricinples were applied and it was observed that the model with *Random Forest* principled model provided better accuracy than *Tree Based* model
+
+
+
+
+
