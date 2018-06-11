@@ -1,4 +1,4 @@
-# Practice_Machine_learning
+# Prediction Model for Quantification of Exercise Activity : Prediction Assignment Writeup
 Repository for Practice Machine Learning Course work
 
 This Repository consists files related to project *Prediction Mode for Quantification of Exercise Activity* as a part of the CoursEra listing under *Practice Machine Learning*. 
